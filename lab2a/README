@@ -1,0 +1,23 @@
+NAME: Jack Zhang
+EMAIL: dvorjackz@ucla.edu
+ID: 004993345
+
+QUESTION 2.1.1
+If a thread can run through all its iterations before a context switch back to the main thread, then no two threads will exist at the same time, and there will be no race conditions. However, if a thread has not finished running all of its iterations before a context switch is made back to the main thread, then another thread will be spawned and there would be more than one thread running at the same time, allowing race conditions to occur. This may happen when two threads access the counter variable at the same time. From this, we may conclude that as the number of iterations increase, the probabiliy that a context switch is made back to the main thread before all the iterations have finished increases.
+
+That is why, for less iterations, such as 100 and 1000, there are rarely any race conditions - most likely since most context switches never occur that early into a spawned thread's execution and each thread is allowed to complete before another one is spawned.
+
+QUESTION 2.1.2
+If we yield everytime we increment or decrement, then there will always be more than one thread running at the same time as long as the number of threads is set to two or more. This presents a problem because the large number of context switches caused by the yield calls introduce heavy overhead.
+
+Also, since we do not know much overhead is induced by each yield, we cannot find the per-operation runtime. If we had this overhead time, we could theoretically subtract it from the total run time and divide by elapsed runtime to find the per-operation runtime.
+
+QUESTION 2.1.3
+Context switch time can be viewed as measurement error and is amortized over a great number of iterations, so the runtime of the thread eventually dominates the time of context switching.
+
+To find the number of iterations at which the measurement error in the form of context switching becomes relatively insignificant (and the real cost of each operation is represented), we can run a very large number of iterations and get a number for the per-operation cost which approaches the actual value. Or we can keep on increasing the number of iterations until the cost per operation converges upon the same number.
+
+QUESTION 2.1.4
+Since there are not many threads (and consequently, critical sections), locking in general does not affect much, and thus which type of luck being used becomes insignificant in terms of performance.
+
+As the number of threads increases, the number of critical sections also increases, resulting in more threads being locked out and wiaint for another thread to give up its lock. Thus, the performance is impacted and average operation speed increases.
