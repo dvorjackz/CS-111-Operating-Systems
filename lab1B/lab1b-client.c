@@ -312,7 +312,7 @@ int main(int argc, char **argv) {
   
   // set up terminal for no echo and non-canonical input mode
   terminalSetup();
-
+  fprintf(stderr, "run\n");
   run();
   
   exit(0);

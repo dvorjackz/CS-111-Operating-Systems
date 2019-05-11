@@ -1,6 +1,7 @@
 NAME: Jack Zhang
 EMAIL: dvorjackz@ucla.edu
 ID: 004993345
+SLIPDAYS: 3
 
 QUESTION 2.1.1
 If a thread can run through all its iterations before a context switch back to the main thread, then no two threads will exist at the same time, and there will be no race conditions. However, if a thread has not finished running all of its iterations before a context switch is made back to the main thread, then another thread will be spawned and there would be more than one thread running at the same time, allowing race conditions to occur. This may happen when two threads access the counter variable at the same time. From this, we may conclude that as the number of iterations increase, the probabiliy that a context switch is made back to the main thread before all the iterations have finished increases.
@@ -20,4 +21,10 @@ To find the number of iterations at which the measurement error in the form of c
 QUESTION 2.1.4
 Since there are not many threads (and consequently, critical sections), locking in general does not affect much, and thus which type of luck being used becomes insignificant in terms of performance.
 
-As the number of threads increases, the number of critical sections also increases, resulting in more threads being locked out and wiaint for another thread to give up its lock. Thus, the performance is impacted and average operation speed increases.
+As the number of threads increases, the number of critical sections also increases, resulting in more threads being locked out and waiting for another thread to give up its lock. Thus, the performance is impacted and average operation speed increases.
+
+QUESTION 2.2.1
+The shapes of the graphs are similar, but the graph for part 2 has a steeper slope, since list operations are much more costly than a simple arithmetic add/subtract. One iteration requires four locks, one each for insertion, length, lookup, and deletion.
+
+QUESTION 2.2.2
+They have the same shape in general, although the slope of the graph for spinlocks steeper than that for the mutex. This might be due to the fact that mutexes are library code and are much more optimized than the simple spin lock that I implemented with much fewer lines of code and less consideration of design. The slops are both positive because as the number of threads increase, so do the number of context switches, which are generally very costly. 

@@ -1,15 +1,5 @@
-NAME: Jack Zhang
-EMAIL: dvorjackz@ucla.edu
+NAME: Fuck
+EMAIL: you@email.com
 ID: 004993345
 
-Serial no: BBGW17050301
-MAC address: 2CF7F106602D
-
-The tarball consists of the following files: 
-- a selfie (my_beaglebone.jpg) of me holding my assembled Beaglebone (showing the front of the board).
-- a screen shot (connected.png) from a USB terminal command session connected to my system, showing that me gave it a name and configured network access.
-- a screen shot (copy.png) from a local session in which me copy a hello world program from my laptop/desktop to my Beaglebone.
-- a screen shot (build_run.png) from a WIFI SSH session in which me build and run a trivial (hello world) program.
-- a screen shot (git.png) from a WIFI SSH session in which me install git and clone a repository.
-- a Makefile to build the tarball.
-- a README file containing the serial number of my Beaglebone and the WiFi (unless me are using a hard-wired ethernet connnection) MAC address, and a description of the above files.
+fuck cs111
