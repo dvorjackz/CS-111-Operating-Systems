@@ -1,6 +1,5 @@
 // /NAME: Jack Zhang
 //EMAIL: dvorjackz@ucla.edu
-//ID: 004993345
 
 #include <stdio.h>
 #include <stdlib.h>

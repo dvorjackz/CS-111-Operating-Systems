@@ -1,7 +1,5 @@
 NAME = Jack Zhang
 EMAIL = dvorjackz@ucla.edu
-ID = 004993345
-SLIPDAYS = 3
 
 A duplex terminal which has non-canonical I/O and no echo. A --shell option may be specified to spin up a separate child shell which receives and executes commands passed in from the terminal and writes the output back to the terminal. Pass in a ^C or ^D to close the shell and return to the terminal. 
 

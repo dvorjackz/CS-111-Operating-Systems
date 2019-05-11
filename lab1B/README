@@ -1,6 +1,5 @@
 NAME: JACK ZHANG
 EMAIL: dvorjackz@ucla.edu
-ID: 004993345
 
 Lab1b builds off the functionalities implemented in lab1a by introducing an extra connection layer - the client. Taking the terminal and shell setup from lab1a, we connect to the terminal, which serves as a server, through a client with TCP sockets. Basically, the client forwards keystrokes to the server through a socket, which forwards them to the shell through a pipe. The shell processes the commands, pipes the results back to the server, and the server forwards the output back to the client through a socket.
 

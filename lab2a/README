@@ -1,7 +1,5 @@
 NAME: Jack Zhang
 EMAIL: dvorjackz@ucla.edu
-ID: 004993345
-SLIPDAYS: 3
 
 QUESTION 2.1.1
 If a thread can run through all its iterations before a context switch back to the main thread, then no two threads will exist at the same time, and there will be no race conditions. However, if a thread has not finished running all of its iterations before a context switch is made back to the main thread, then another thread will be spawned and there would be more than one thread running at the same time, allowing race conditions to occur. This may happen when two threads access the counter variable at the same time. From this, we may conclude that as the number of iterations increase, the probabiliy that a context switch is made back to the main thread before all the iterations have finished increases.

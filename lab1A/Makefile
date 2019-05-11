@@ -1,6 +1,5 @@
 # NAME = Jack Zhang
 # EMAIL = dvorjackz@ucla.edu
-# ID = 004993345
 
 CC = gcc
 CFLAGS = -g -o
@@ -14,4 +13,4 @@ clean:
 	rm -rf lab1a *.o *.txt *.tar.gz
 
 dist: default
-	tar -czvf lab1a-004993345.tar.gz lab1a.c README Makefile
+	tar -czvf lab1a-420.tar.gz lab1a.c README Makefile

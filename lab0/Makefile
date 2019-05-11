@@ -1,6 +1,5 @@
 # NAME = Jack Zhang
 # EMAIL = dvorjackz@ucla.edu
-# ID = 004993345
 
 CC = gcc
 CFLAGS = -g -o
@@ -16,7 +15,7 @@ clean:
 check: clean default successfullRun
 
 dist: default
-	tar -czvf lab0-004993345.tar.gz lab0.c README Makefile backtrace.png breakpoint.png
+	tar -czvf lab0-420.tar.gz lab0.c README Makefile backtrace.png breakpoint.png
 
 successfullRun:
 	echo "420" > in.txt

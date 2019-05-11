@@ -1,6 +1,5 @@
 NAME: Jack Zhang
 EMAIL: dvorjackz@ucla.edu
-ID: 004993345
 
 The lab0.c file has and individual segfault-causing subroutine. First it parses\
  the options, then checks if segfault or catch have been specified. Next, it ch\
