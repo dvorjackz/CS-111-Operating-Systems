@@ -17,3 +17,8 @@ As we can see from the profile produced by pprof, the bulk of the execution time
 The spinning becomes very expensive as the nunmber of threads increases, because if threads without locks are spinning, the thread that actually needs to finish the list operations is not running. As there are more threads, this effect becomes amplified and the program becomes even slower.
 
 QUESTION 2.3.3
+The average wait-for-lock time increases dramatically because there are more threads competing for the lock, and consequently more time-costly mutex checking for whether the lock is available by each thread. 
+
+Average time per operation increases becasue of the increasing number of context switches associated with more threads. 
+
+Completion time is equal to wait time plus the time for everything else: list operations, etc. The non-wait time is much less time costly and grows slower than lock-wait time, so overall completion time will grow more slowly than wait time. 
