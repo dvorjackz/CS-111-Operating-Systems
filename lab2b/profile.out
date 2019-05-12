@@ -1,0 +1,182 @@
+Total: 3654 samples
+    3577  97.9%  97.9%     3654 100.0% run_thread
+      58   1.6%  99.5%       68   1.9% SortedList_lookup
+      16   0.4%  99.9%       16   0.4% __strcmp_sse42
+       2   0.1% 100.0%        9   0.2% SortedList_insert
+       1   0.0% 100.0%        1   0.0% _init
+       0   0.0% 100.0%     3654 100.0% __clone
+       0   0.0% 100.0%     3654 100.0% start_thread
+ROUTINE ====================== run_thread in /u/cs/ugrad/jackz/CS111/lab2b/lab2_list.c
+  3577   3654 Total samples (flat / cumulative)
+     .      .   30:   fprintf(stderr, "Segmentation fault\n");
+     .      .   31:   exit(2);
+     .      .   32:   
+     .      .   33: }
+     .      .   34: 
+---
+     .      .   35: void* run_thread(void* ind) {
+     .      .   36:   
+     .      .   37:   int start = *((int*) ind);
+     .      .   38:   for (int i = start; i < start + numIterations; i++) {
+     .      .   39:     if (lockType == 'n') {
+     .      .   40:       SortedList_insert(list, &elements[i]);
+     .      .   41:     }
+     .      .   42:     else if (lockType == 'm') {
+     .      .   43:       pthread_mutex_lock(&mutex);
+     .      .   44:       SortedList_insert(list, &elements[i]);
+     .      .   45:       pthread_mutex_unlock(&mutex);
+     .      .   46:     }
+     .      .   47:     else if (lockType == 's') {
+  1762   1762   48:       while (__sync_lock_test_and_set(&spin, 1)) {
+     1      1   49: 	continue;
+     .      .   50:       }
+     .      9   51:       SortedList_insert(list, &elements[i]);
+     .      .   52:       __sync_lock_release(&spin);
+     .      .   53:     }
+     .      .   54:   }
+     .      .   55:   
+     .      .   56:   int length = 0;
+     .      .   57:   if (lockType == 'n') {
+     .      .   58:     length = SortedList_length(list);
+     .      .   59:   }
+     .      .   60:   else if (lockType == 'm') {
+     .      .   61:     pthread_mutex_lock(&mutex);
+     .      .   62:     length = SortedList_length(list);
+     .      .   63:     pthread_mutex_unlock(&mutex);
+     .      .   64:   }
+     .      .   65:   else if (lockType == 's') {
+     .      .   66:     while (__sync_lock_test_and_set(&spin, 1)) {
+     .      .   67:       continue;
+     .      .   68:     }
+     .      .   69:     length = SortedList_length(list);
+     .      .   70:     __sync_lock_release(&spin);
+     .      .   71:   }
+     .      .   72:   if (length < 0) {
+     .      .   73:     fprintf(stderr, "Error: length is negative\n");
+     .      .   74:     exit(1);
+     .      .   75:   }
+     .      .   76: 
+     .      .   77:   SortedListElement_t* toDelete;
+     .      .   78:   for (int i = start; i < start + numIterations; i++) {
+     .      .   79:     if (lockType == 'n') {
+     .      .   80:       toDelete = SortedList_lookup(list, elements[i].key);
+     .      .   81:       if (SortedList_delete(toDelete)) {
+     .      .   82:         fprintf(stderr, "Error: could not delete list element\n");
+     .      .   83:       }
+     .      .   84:     }
+     .      .   85:     else if (lockType == 'm') {
+     .      .   86:       pthread_mutex_lock(&mutex);
+     .      .   87:       toDelete = SortedList_lookup(list, elements[i].key);
+     .      .   88:       if (SortedList_delete(toDelete)) {
+     .      .   89:         fprintf(stderr, "Error: could not delete list element\n");
+     .      .   90:       }
+     .      .   91:       pthread_mutex_unlock(&mutex);
+     .      .   92:     }
+     .      .   93:     else if (lockType == 's') {
+  1805   1805   94:       while (__sync_lock_test_and_set(&spin, 1)) {
+     9      9   95: 	continue;
+     .      .   96:       }
+     .     68   97:       toDelete = SortedList_lookup(list, elements[i].key);
+     .      .   98:       if (SortedList_delete(toDelete)) {
+     .      .   99: 	fprintf(stderr, "Error: could not delete list element\n");
+     .      .  100:       }
+     .      .  101:       __sync_lock_release(&spin);
+     .      .  102:     }
+     .      .  103:   }
+     .      .  104:   
+     .      .  105:   return NULL;
+     .      .  106:   
+     .      .  107: }
+---
+     .      .  108: 
+     .      .  109: int main(int argc, char **argv){
+     .      .  110:   
+     .      .  111:   opterr = 0; // suppress automatic stock error message
+     .      .  112: 
+ROUTINE ====================== run_thread in /u/cs/ugrad/jackz/CS111/lab2b/lab2_list.c
+  3577   3654 Total samples (flat / cumulative)
+     .      .   30:   fprintf(stderr, "Segmentation fault\n");
+     .      .   31:   exit(2);
+     .      .   32:   
+     .      .   33: }
+     .      .   34: 
+---
+     .      .   35: void* run_thread(void* ind) {
+     .      .   36:   
+     .      .   37:   int start = *((int*) ind);
+     .      .   38:   for (int i = start; i < start + numIterations; i++) {
+     .      .   39:     if (lockType == 'n') {
+     .      .   40:       SortedList_insert(list, &elements[i]);
+     .      .   41:     }
+     .      .   42:     else if (lockType == 'm') {
+     .      .   43:       pthread_mutex_lock(&mutex);
+     .      .   44:       SortedList_insert(list, &elements[i]);
+     .      .   45:       pthread_mutex_unlock(&mutex);
+     .      .   46:     }
+     .      .   47:     else if (lockType == 's') {
+  1762   1762   48:       while (__sync_lock_test_and_set(&spin, 1)) {
+     1      1   49: 	continue;
+     .      .   50:       }
+     .      9   51:       SortedList_insert(list, &elements[i]);
+     .      .   52:       __sync_lock_release(&spin);
+     .      .   53:     }
+     .      .   54:   }
+     .      .   55:   
+     .      .   56:   int length = 0;
+     .      .   57:   if (lockType == 'n') {
+     .      .   58:     length = SortedList_length(list);
+     .      .   59:   }
+     .      .   60:   else if (lockType == 'm') {
+     .      .   61:     pthread_mutex_lock(&mutex);
+     .      .   62:     length = SortedList_length(list);
+     .      .   63:     pthread_mutex_unlock(&mutex);
+     .      .   64:   }
+     .      .   65:   else if (lockType == 's') {
+     .      .   66:     while (__sync_lock_test_and_set(&spin, 1)) {
+     .      .   67:       continue;
+     .      .   68:     }
+     .      .   69:     length = SortedList_length(list);
+     .      .   70:     __sync_lock_release(&spin);
+     .      .   71:   }
+     .      .   72:   if (length < 0) {
+     .      .   73:     fprintf(stderr, "Error: length is negative\n");
+     .      .   74:     exit(1);
+     .      .   75:   }
+     .      .   76: 
+     .      .   77:   SortedListElement_t* toDelete;
+     .      .   78:   for (int i = start; i < start + numIterations; i++) {
+     .      .   79:     if (lockType == 'n') {
+     .      .   80:       toDelete = SortedList_lookup(list, elements[i].key);
+     .      .   81:       if (SortedList_delete(toDelete)) {
+     .      .   82:         fprintf(stderr, "Error: could not delete list element\n");
+     .      .   83:       }
+     .      .   84:     }
+     .      .   85:     else if (lockType == 'm') {
+     .      .   86:       pthread_mutex_lock(&mutex);
+     .      .   87:       toDelete = SortedList_lookup(list, elements[i].key);
+     .      .   88:       if (SortedList_delete(toDelete)) {
+     .      .   89:         fprintf(stderr, "Error: could not delete list element\n");
+     .      .   90:       }
+     .      .   91:       pthread_mutex_unlock(&mutex);
+     .      .   92:     }
+     .      .   93:     else if (lockType == 's') {
+  1805   1805   94:       while (__sync_lock_test_and_set(&spin, 1)) {
+     9      9   95: 	continue;
+     .      .   96:       }
+     .     68   97:       toDelete = SortedList_lookup(list, elements[i].key);
+     .      .   98:       if (SortedList_delete(toDelete)) {
+     .      .   99: 	fprintf(stderr, "Error: could not delete list element\n");
+     .      .  100:       }
+     .      .  101:       __sync_lock_release(&spin);
+     .      .  102:     }
+     .      .  103:   }
+     .      .  104:   
+     .      .  105:   return NULL;
+     .      .  106:   
+     .      .  107: }
+---
+     .      .  108: 
+     .      .  109: int main(int argc, char **argv){
+     .      .  110:   
+     .      .  111:   opterr = 0; // suppress automatic stock error message
+     .      .  112: 

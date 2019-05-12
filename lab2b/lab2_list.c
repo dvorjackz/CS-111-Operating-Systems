@@ -21,31 +21,45 @@ SortedList_t* list;
 char lockType = 'n';
 pthread_mutex_t mutex;
 int spin = 0;
+long long *threadLockTimes;
 
 int opt_yield = 0;
 char opt_tag[5] = "";
 
 void segHandler(){
+  
   fprintf(stderr, "Segmentation fault\n");
   exit(2);
+  
 }
 
 void* run_thread(void* ind) {
 
+  struct timespec lockStartTime;
+  struct timespec lockEndTime;
+  
   int start = *((int*) ind);
   for (int i = start; i < start + numIterations; i++) {
     if (lockType == 'n') {
       SortedList_insert(list, &elements[i]);
     }
     else if (lockType == 'm') {
+      clock_gettime(CLOCK_MONOTONIC, &lockStartTime);
       pthread_mutex_lock(&mutex);
+      clock_gettime(CLOCK_MONOTONIC, &lockEndTime);
+      threadLockTimes[start/numIterations] += (lockEndTime.tv_sec - lockStartTime.tv_sec)*1000000000 +
+	(lockEndTime.tv_nsec - lockStartTime.tv_nsec);
       SortedList_insert(list, &elements[i]);
       pthread_mutex_unlock(&mutex);
     }
     else if (lockType == 's') {
+      clock_gettime(CLOCK_MONOTONIC, &lockStartTime);
       while (__sync_lock_test_and_set(&spin, 1)) {
 	continue;
       }
+      clock_gettime(CLOCK_MONOTONIC, &lockEndTime);
+      threadLockTimes[start/numIterations] += (lockEndTime.tv_sec - lockStartTime.tv_sec)*1000000000 +
+	(lockEndTime.tv_nsec - lockStartTime.tv_nsec);
       SortedList_insert(list, &elements[i]);
       __sync_lock_release(&spin);
     }
@@ -56,14 +70,22 @@ void* run_thread(void* ind) {
     length = SortedList_length(list);
   }
   else if (lockType == 'm') {
+    clock_gettime(CLOCK_MONOTONIC, &lockStartTime);
     pthread_mutex_lock(&mutex);
+    clock_gettime(CLOCK_MONOTONIC, &lockEndTime);
+      threadLockTimes[start/numIterations] += (lockEndTime.tv_sec - lockStartTime.tv_sec)*1000000000 +
+        (lockEndTime.tv_nsec - lockStartTime.tv_nsec);
     length = SortedList_length(list);
     pthread_mutex_unlock(&mutex);
   }
   else if (lockType == 's') {
+    clock_gettime(CLOCK_MONOTONIC, &lockStartTime);
     while (__sync_lock_test_and_set(&spin, 1)) {
       continue;
     }
+    clock_gettime(CLOCK_MONOTONIC, &lockEndTime);
+      threadLockTimes[start/numIterations] += (lockEndTime.tv_sec - lockStartTime.tv_sec)*1000000000 +
+        (lockEndTime.tv_nsec - lockStartTime.tv_nsec);
     length = SortedList_length(list);
     __sync_lock_release(&spin);
   }
@@ -81,7 +103,11 @@ void* run_thread(void* ind) {
       }
     }
     else if (lockType == 'm') {
+      clock_gettime(CLOCK_MONOTONIC, &lockStartTime);
       pthread_mutex_lock(&mutex);
+      clock_gettime(CLOCK_MONOTONIC, &lockEndTime);
+      threadLockTimes[start/numIterations] += (lockEndTime.tv_sec - lockStartTime.tv_sec)*1000000000 +
+        (lockEndTime.tv_nsec - lockStartTime.tv_nsec);
       toDelete = SortedList_lookup(list, elements[i].key);
       if (SortedList_delete(toDelete)) {
         fprintf(stderr, "Error: could not delete list element\n");
@@ -89,9 +115,13 @@ void* run_thread(void* ind) {
       pthread_mutex_unlock(&mutex);
     }
     else if (lockType == 's') {
+      clock_gettime(CLOCK_MONOTONIC, &lockStartTime);
       while (__sync_lock_test_and_set(&spin, 1)) {
 	continue;
       }
+      clock_gettime(CLOCK_MONOTONIC, &lockEndTime);
+      threadLockTimes[start/numIterations] += (lockEndTime.tv_sec - lockStartTime.tv_sec)*1000000000 +
+        (lockEndTime.tv_nsec - lockStartTime.tv_nsec);
       toDelete = SortedList_lookup(list, elements[i].key);
       if (SortedList_delete(toDelete)) {
 	fprintf(stderr, "Error: could not delete list element\n");
@@ -101,31 +131,10 @@ void* run_thread(void* ind) {
   }
   
   return NULL;
+  
 }
 
 int main(int argc, char **argv){
-
-  /* SortedList_t *a = malloc(sizeof(SortedList_t)); */
-  /* a->key = NULL; */
-  /* a->next = a->prev = a; */
-
-  /* SortedListElement_t *b = malloc(sizeof(SortedListElement_t)*3); */
-  /* b[0].key = "a"; */
-  /* b[0].next = b[0].prev = &b[0]; */
-  /* b[1].key = "b"; */
-  /* b[1].next = b[1].prev = &b[1]; */
-  /* b[2].key = "a"; */
-  /* b[2].next = b[2].prev = &b[2]; */
-  
-  /* SortedList_insert(a, &b[0]); */
-  /* fprintf(stdout, "%d\n", SortedList_length(a)); */
-  /* SortedList_insert(a, &b[1]); */
-  /* fprintf(stdout, "%d\n", SortedList_length(a)); */
-  /* SortedList_insert(a, &b[2]); */
-  /* fprintf(stdout, "%d\n", SortedList_length(a)); */
-  /* fprintf(stdout, "%s\n", SortedList_lookup(a, "a")->key); */
-  /* fprintf(stdout, "%s\n", SortedList_lookup(a, "b")->key); */
-  /* SortedList_lookup(a, "c")->key; */
   
   opterr = 0; // suppress automatic stock error message
 
@@ -193,8 +202,8 @@ int main(int argc, char **argv){
   list = malloc(sizeof(SortedList_t));
   list->key = NULL;
   list->next = list->prev = list;
-	
-  // allocated the random keys into the thread elements
+  
+  // allocate the random keys into the thread elements
   int numElements = numThreads * numIterations;
   elements = malloc(numElements * sizeof(SortedListElement_t));
   srand((unsigned int) time(NULL));
@@ -206,10 +215,14 @@ int main(int argc, char **argv){
   }
 
   signal(SIGSEGV, segHandler);
-	
+
+  // for getting total time spent on locking for each thread
+  threadLockTimes = malloc(sizeof(long long) * numThreads);
+  
+  // make sure only the thread creation and joining occur between start and end time
   struct timespec startTime;
   clock_gettime(CLOCK_MONOTONIC, &startTime);
-
+  
   // create the threads
   pthread_t *threads = malloc(numThreads * sizeof(pthread_t));
   int *starts = malloc(numThreads * sizeof(int));
@@ -234,20 +247,26 @@ int main(int argc, char **argv){
   struct timespec endTime;
   clock_gettime(CLOCK_MONOTONIC, &endTime);
 
+  long long totalLockTime = 0;
+  for (int i = 0; i < numThreads; i++) {
+    totalLockTime += threadLockTimes[i]; 
+  }
+
   int listLength = SortedList_length(list);
   if (listLength > 0) {
-    fprintf(stderr, "Error: list length: %d\n", listLength);
+    fprintf(stderr, "Error: list length is not 0\n");
     exit(2);
   }
   else if (listLength < 0) {
     fprintf(stderr, "Error: list length is negative\n");
     exit(2);
   }
-	
+  
   long long elapsedTime = (endTime.tv_sec - startTime.tv_sec)*1000000000 + (endTime.tv_nsec - startTime.tv_nsec);
   long long noOperations = 3 * numThreads * numIterations;
   int avgTime = elapsedTime/noOperations;
-
+  long long avgLockTime = totalLockTime/noOperations;
+  
   char testName[100] = "list-";
   strcat(testName, opt_tag);
   strcat(testName, "-");
@@ -265,12 +284,15 @@ int main(int argc, char **argv){
     fprintf(stderr, "Could not find the specified lock type: %c\n", lockType);
   }
 
-  fprintf(stdout, "%s,%d,%d,1,%lld,%lld,%d\n", testName, numThreads, numIterations, noOperations, elapsedTime, avgTime);
-	
+  fprintf(stdout, "%s,%d,%d,1,%lld,%lld,%d,%lld\n", testName, numThreads, numIterations, noOperations, elapsedTime, avgTime, avgLockTime);
+  
   free(threads);
   free(starts);
   free(list);
+  for (int i = 0; i < numElements; i++)
+    free((char*) elements[i].key);
   free(elements);
 
   exit(0);
+  
 }

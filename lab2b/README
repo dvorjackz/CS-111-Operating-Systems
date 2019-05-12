@@ -1,0 +1,19 @@
+NAME: Jack Zhang
+EMAIL: dvorjackz@ucla.edu
+ID: 004993345
+
+QUESTION 2.3.1
+Most of the cycles are spent executing list operations. For the 2-thread tests, some of the time goes toward lock operatiosn and spinning as well, but in general, most time is still spent on list operations, as can be verified by the graph.
+
+The most expensive parts of the code are locking, spinning, and each of the four list operations.
+
+For the high-thread spin lock tests, most of the time is spent spinning, since each thread that does not obtain a lock keeps spinning until it receives the key.
+
+For the high-thread mutex lock tests, it is not as definitive, but I believe most of the time is spent on list operations if the list if large, since the lookup, length, and insertion functions are O(n). Also, mutex threads do not keep running and hogging CPU when it does not obtain a lock and simply sleeps, freeing up CPU for the main list functions, unlike the spin threads. Thus, they are more efficient. If the list size is small though, most of the time is spent on locking operations.
+
+QUESTION 2.3.2
+As we can see from the profile produced by pprof, the bulk of the execution time is spent on spinning and waiting for a key to access the insertion and deletion critical sections. There is very little time being spent on the list operations themselves.
+
+The spinning becomes very expensive as the nunmber of threads increases, because if threads without locks are spinning, the thread that actually needs to finish the list operations is not running. As there are more threads, this effect becomes amplified and the program becomes even slower.
+
+QUESTION 2.3.3
