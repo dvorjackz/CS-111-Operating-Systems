@@ -1,5 +1,7 @@
 NAME: Jack Zhang
 EMAIL: dvorjackz@ucla.edu
+ID: 004993345
+SLIPDAYS: 1
 
 QUESTION 2.3.1
 Most of the cycles are spent executing list operations. For the 2-thread tests, some of the time goes toward lock operatiosn and spinning as well, but in general, most time is still spent on list operations, as can be verified by the graph.
