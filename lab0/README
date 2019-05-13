@@ -1,15 +1,6 @@
 NAME: Jack Zhang
 EMAIL: dvorjackz@ucla.edu
 
-The lab0.c file has and individual segfault-causing subroutine. First it parses\
- the options, then checks if segfault or catch have been specified. Next, it ch\
-ecks if a segfault is warranted, then it does file opening and redirection acco\
-rdingly any input or ouput files were specified. Next, it does the reading from\
-the newly linked stdin and writing to the newly linked stdout. Exit codes are s\
-et accordingly.
+The lab0.c file has and individual segfault-causing subroutine. First it parses the options, then checks if segfault or catch have been specified. Next, it checks if a segfault is warranted, then it does file opening and redirection accordingly any input or ouput files were specified. Next, it does the reading fromthe newly linked stdin and writing to the newly linked stdout. Exit codes are set accordingly.
 
-For the smoke case test, I decided to keep things simple. If input and output w\
-ere specified, then it checks to see that the program exits with a code of 0 an\
-d that in.txt's content is accurately copied into out.txt. Then, it checks to s\
-ee if the segmentation fault is thrown and if the SIGSEGV handler properly catc\
-hes and handles the error. 
+For the smoke case test, I decided to keep things simple. If input and output were specified, then it checks to see that the program exits with a code of 0 and that in.txt's content is accurately copied into out.txt. Then, it checks to see if the segmentation fault is thrown and if the SIGSEGV handler properly catches and handles the error. 
