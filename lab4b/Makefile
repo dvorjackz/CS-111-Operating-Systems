@@ -3,7 +3,7 @@
 # ID = 004993345
 
 CC = gcc
-CFLAGS = -g -pthread
+CFLAGS = -g -lmraa -lm
 
 .SILENT:
 

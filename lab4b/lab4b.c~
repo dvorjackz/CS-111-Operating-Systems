@@ -20,8 +20,8 @@
 #define CELSIUS 1
 
 // option variables
-int log_flag = 0;
-int log_fd;
+int logFlag = 0;
+int logFd;
 int period = 1;
 int scale = FAHRENHEIT;
 
@@ -96,8 +96,8 @@ int main(int argc, char **argv) {
       }
     }
     else if (opt == (char) 'l') {
-      log_flag = 1;
-      if ((log_fd = open(optarg, O_CREAT | O_WRONLY, 0666)) == -1) {
+      logFlag = 1;
+      if ((logFd = open(optarg, O_CREAT | O_WRONLY, 0666)) == -1) {
 	fprintf(stderr, "Could not open/create file for logging purposes.\n");
       }
     }
@@ -149,7 +149,7 @@ int main(int argc, char **argv) {
       sprintf(buf,"%02d:%02d:%02d %.1f\n", localTime->tm_hour, localTime->tm_min, localTime->tm_sec, currTemp);
       fputs(buf, stdout);
       if (log_flag) {
-	dprintf(log_fd, "%s", buf);
+	dprintf(logFd, "%s", buf);
       }
       nextTime = currTime.tv_sec + period;
       fprintf(stdout, "%d second(s) have elapsed.\n", period);
