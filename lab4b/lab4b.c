@@ -9,6 +9,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <poll.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -18,12 +19,15 @@
 
 #define FAHRENHEIT 0
 #define CELSIUS 1
+#define RUN 0
+#define PAUSE 1
 
 // option variables
 int log_flag = 0;
 int log_fd;
 int period = 1;
 int scale = FAHRENHEIT;
+int status = RUN;
 
 // sensor pointers
 mraa_aio_context tempSensor;
@@ -45,10 +49,13 @@ void button_press_handler() {
   localTime = localtime(&currTime.tv_sec);
   sprintf(buf,"%02d:%02d:%02d SHUTDOWN\n", localTime->tm_hour, localTime->tm_min, localTime->tm_sec);
   fputs(buf, stdout);
+  if (log_flag) {
+    dprintf(log_fd, "%02d:%02d:%02d SHUTDOWN\n", localTime->tm_hour, localTime->tm_min, localTime->tm_sec);
+  }
   run_flag = 0;
 }
 
-/* // reference: http://wiki.seeedstudio.com/Grove-Temperature_Sensor_V1.2/ */
+// reference: http://wiki.seeedstudio.com/Grove-Temperature_Sensor_V1.2/ */
 double getTemp() {
   int reading = mraa_aio_read(tempSensor);
   if (reading == -1) {
@@ -58,7 +65,58 @@ double getTemp() {
   double R = 1023.0 / ((double) reading) - 1.0;
   R = R0 * R;
   double temperature = 1.0 / (log(R/R0)/B + 1/298.15) - 273.15;
+  if (scale == FAHRENHEIT) {
+    temperature = 9/5 * temperature + 32;
+  }
   return temperature;
+}
+
+void handleCommand(char *command) {
+  if (strncmp(command, "SCALE=", sizeof(char) * 6) == 0) {
+    if (command[6] == 'C') {
+      scale = CELSIUS;
+    }
+    else if (command[6] == 'F') {
+      scale = FAHRENHEIT;
+    }
+    if (log_flag) {
+      dprintf(log_fd, "%s\n", command);
+    }
+  }
+  else if (strncmp(command, "PERIOD=", sizeof(char) * 7) == 0) {
+    period = atoi(&command[7]);
+    if (log_flag) {
+      dprintf(log_fd, "%s\n", command);
+    }
+  }
+  else if (strncmp(command, "STOP", sizeof(char) * 4) == 0) {
+    status = PAUSE;
+    if (log_flag) {
+      dprintf(log_fd, "%s\n", command);
+    }
+  }
+  else if (strncmp(command, "START", sizeof(char) * 5) == 0) {
+    status = RUN;
+    if (log_flag) {
+      dprintf(log_fd, "%s\n", command);
+    }
+  }
+  else if (strncmp(command, "OFF", sizeof(char) * 3) == 0) {
+    if (log_flag) {
+      dprintf(log_fd, "%s\n", command);
+    }
+    button_press_handler();
+  }
+  else if (strncmp(command, "LOG ", sizeof(char) * 4) == 0) {
+    if (log_flag) {
+      dprintf(log_fd, "%s\n", command);
+    }
+  }
+  else {
+    if (log_flag) {
+      dprintf(log_fd, "%s\n", command);
+    }
+  }
 }
 
 int main(int argc, char **argv) {
@@ -130,20 +188,25 @@ int main(int argc, char **argv) {
   // set up a button listener that calls handler when pressed
   mraa_gpio_isr(button, MRAA_GPIO_EDGE_RISING, &button_press_handler, NULL);
 
+  // poll for commands
+  struct pollfd pollfd[1];
+  pollfd[0].fd = 0;
+  pollfd[0].events = POLLIN | POLLHUP | POLLERR;
+
   // for current time
   if ((gettimeofday(&currTime, NULL)) == -1) {
     fprintf(stderr, "Error: could not retrieve time.\n");
   }
 
   // for next time, determined by user-submitted period value
-  time_t nextTime = currTime.tv_sec + period;
+  time_t nextTime = 0;
 
   while (run_flag) {
     if ((gettimeofday(&currTime, NULL)) == -1) {
       fprintf(stderr, "Error: could not retrieve time.\n");
     }
     // when one second has elapsed
-    if (currTime.tv_sec >= nextTime) {
+    if (currTime.tv_sec >= nextTime && status == RUN) {
       double currTemp = getTemp();
       localTime = localtime(&currTime.tv_sec);
       sprintf(buf,"%02d:%02d:%02d %.1f\n", localTime->tm_hour, localTime->tm_min, localTime->tm_sec, currTemp);
@@ -152,7 +215,27 @@ int main(int argc, char **argv) {
 	dprintf(log_fd, "%s", buf);
       }
       nextTime = currTime.tv_sec + period;
-      fprintf(stdout, "%d second(s) have elapsed.\n", period);
+    }
+    int poll_val;
+    if ((poll_val = poll(pollfd, 1, 0)) == -1) {
+      fprintf(stderr, "Error: could not poll.\n");
+      exit(1);
+    }
+    else if ((*pollfd).revents & POLLIN) {
+      char input_buf[128];
+      int num_bytes = read(0, input_buf, sizeof(input_buf));
+      char command[128];
+      int i;
+      for (i = 0; i < num_bytes; i++) {
+	if (input_buf[i] == '\n') {
+	  handleCommand(command);
+	  memset(command, 0, 128);
+	}
+	else {
+	  char c = input_buf[i];
+	  strcat(command, &c);
+	}
+      }
     }
   }
 

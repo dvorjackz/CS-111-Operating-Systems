@@ -1,0 +1,13 @@
+NAME: Jack Zhang
+EMAIL: dvorjackz@ucla.edu
+UID: 004993345
+SLIPDAYS: 3
+
+Makefile targets:
+default: builds the executable, lab4b
+dist: builds the tar.gz file
+check: runs smoke tests
+clean: removes object and text files
+
+Lab4b:
+Get a temperature reading every period, with the period being determined by the user. The button stops the program, and other commands can be channeled in such as start, stop, log, scale, and period. Used poll (2) to detect user input. 
