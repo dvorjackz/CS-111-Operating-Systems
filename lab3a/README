@@ -1,0 +1,15 @@
+NAME: JACK ZHANG,EDWARD ZHANG
+EMAIL: dvorjackz@ucla.edu,edward123@gmail.com
+ID: 004993345,604933481
+
+lab3a.c: 
+Mounts an ext2 file system and provides an extensive summary in the form of a csv. Includes information on free inodes, free blocks, inodes, symbolic links, directories, group descriptors, and the super block. Uses recursion to expand n-degree indirect pointers. 
+
+Makefile:
+default: Builds executable lab3a. 
+dist: Creates distributable tar.gz tarball.
+clean: Removes clutter.
+
+ext2_fs.h:
+Header file providing necessary constants and variables for the ext2 file system. 
+
